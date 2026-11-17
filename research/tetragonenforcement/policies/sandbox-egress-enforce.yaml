@@ -1,0 +1,35 @@
+# Derived from cilium/tetragon (Apache-2.0) example
+# examples/quickstart/network_egress_cluster_enforce.yaml (tcp_connect +
+# NotDAddr + Sigkill), re-scoped from Kubernetes pod identity to the
+# non-Kubernetes sandbox model with matchNamespaces host-ns scoping.
+# Scope: processes outside the host PID namespace may connect only to
+# loopback (where the sandbox gateway lives); every other egress is killed.
+# Add sandbox-gateway or allowlisted CIDRs to `values` as needed.
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: "sandbox-egress-enforce"
+  annotations:
+    description: "Sigkill non-loopback TCP egress from processes outside the host PID namespace"
+spec:
+  kprobes:
+  - call: "tcp_connect"
+    syscall: false
+    args:
+    - index: 0
+      type: "sock"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "NotDAddr"
+        values:
+        - 127.0.0.1
+        # - ::1           # uncomment to also allow IPv6 loopback
+        # - 10.0.0.0/8    # example additional allowlist entry (CIDR)
+      matchNamespaces:
+      - namespace: Pid
+        operator: "NotIn"
+        values:
+        - "host_ns"
+      matchActions:
+      - action: Sigkill
