@@ -7,6 +7,8 @@
 
 This directory is a **dependency-free Go harness** (escape-attempt matrix runner + syscall-overhead microbenchmark + result model) and the **five sandbox TracingPolicies** it validates. The kernel side is stock Tetragon; nothing here reimplements eBPF.
 
+> **Research-only**: the committed TracingPolicies and the `/etc/shadow` / egress probe in the harness are a study scaffold — they must not be applied to production as-is (see the per-file banners and PROTOCOL.md §6 FP audit).
+
 > **Authoring-environment honesty**: the research was authored on Windows 11 with no Linux distribution available (WSL2 present, distro not installed). **Raw kernel numbers are not committed with this PR.** What is committed: the runnable harness, five grounded policies, the exact measurement protocol (`results/PROTOCOL.md`, <30 min on any Linux ≥ 5.10 host with BTF), the raw-results schema, and a test suite that compiles and runs on every OS. A valid negative result completes the bounty contract; the harness makes the first real run a two-command affair.
 
 ---
